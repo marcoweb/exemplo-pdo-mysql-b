@@ -15,8 +15,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 
     $livro = $comando_livro->fetch(PDO::FETCH_ASSOC);
 } else {
-    $comando = $bd->prepare('INSERT INTO livros(titulo, id_genero) VALUES(:titulo, :genero)');
-    $comando->execute([':titulo' => $_POST['titulo'], ':genero' => $_POST['genero']]);
+    $comando = $bd->prepare('UPDATE livros SET titulo = :titulo, id_genero = :genero WHERE id = :id');
+    $comando->execute([
+        ':titulo' => $_POST['titulo'],
+        ':genero' => $_POST['genero'],
+        ':id' => $_POST['id']]);
 
     header('Location:/list_livros.php');
 }
@@ -24,19 +27,18 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 ?>
 
 <?php include('./includes/header.php'); ?>
-
 <h1>Novo Livro</h1>
-<form action="insert_livro.php" method="post">
+<form action="update_livro.php" method="post">
     <input type="hidden" name="id" value="<?= $livro['id'] ?>"
     <div class="form-group">
         <label for="titulo">Título</label>
-        <input class="form-control" type="text" name="titulo" />
+        <input class="form-control" type="text" name="titulo" value="<?= $livro['titulo'] ?>" />
     </div>
     <div class="form-group">
         <label for="genero">Gênero</label>
         <select name="genero" class="form-select">
             <?php foreach($generos as $g): ?>
-                <option value="<?= $g['id']?>">
+                <option value="<?= $g['id']?>" <?= ($g['id'] == $livro['id_genero']) ? 'selected' : '' ?>>
                     <?= $g['nome']?>
                 </option>
             <?php endforeach ?>
